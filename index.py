@@ -1,15 +1,39 @@
 import osmnx as ox
 import matplotlib.pyplot as plt
 
-place_name = [
-    "Gonzaga, Santos, São Paulo, Brazil",
-    "Encruzilhada, Santos, São Paulo, Brazil",
-    "Macuco, Santos, São Paulo, Brazil",
-    "Boqueirão, Santos, São Paulo, Brazil"]
-G = ox.graph_from_place(place_name, network_type="drive")
+from aco1 import buscar_rota_aco
 
-nodes, edges = ox.graph_to_gdfs(G)
 
-print(edges)
+BAIRROS = [
+    "Gonzaga, Santos, Sao Paulo, Brazil",
+    "Encruzilhada, Santos, Sao Paulo, Brazil",
+    "Macuco, Santos, Sao Paulo, Brazil",
+    "Boqueirao, Santos, Sao Paulo, Brazil",
+]
 
-ox.plot_graph(G, node_size=0, edge_color="yellow", edge_linewidth=0.2, bgcolor="black")
+# Coordenadas em formato (latitude, longitude).
+ORIGEM = (-23.963921, -46.332366)
+DESTINO = (-23.965180, -46.309495)
+
+
+def executar_rota(origem=ORIGEM, destino=DESTINO):
+    grafo = ox.graph_from_place(BAIRROS, network_type="drive")
+    no_origem = ox.distance.nearest_nodes(grafo, X=origem[1], Y=origem[0])
+    no_destino = ox.distance.nearest_nodes(grafo, X=destino[1], Y=destino[0])
+
+    rota, metros = buscar_rota_aco(grafo, no_origem, no_destino, seed=42)
+    print(f"Distancia da rota: {metros:.0f} m")
+
+    _, ax = ox.plot_graph(
+        grafo, node_size=0, edge_color="gray", show=False, close=False
+    )
+    ox.plot_graph_route(
+        grafo, rota, ax=ax, route_color="red", route_linewidth=4,
+        node_size=0, show=False, close=False,
+    )
+    plt.show()
+    return rota, metros
+
+
+if __name__ == "__main__":
+    executar_rota()
