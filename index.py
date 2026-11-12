@@ -7,13 +7,13 @@ from aco1 import buscar_rota_aco
 BAIRROS = [
     "Gonzaga, Santos, Sao Paulo, Brazil",
     "Encruzilhada, Santos, Sao Paulo, Brazil",
-    "Macuco, Santos, Sao Paulo, Brazil",
-    "Boqueirao, Santos, Sao Paulo, Brazil",
+    "Campo Grande, Santos, Sao Paulo, Brazil",
+    "Boqueirão, Santos, Sao Paulo, Brazil"
 ]
 
 # Coordenadas em formato (latitude, longitude).
-ORIGEM = (-23.963921, -46.332366)
-DESTINO = (-23.965180, -46.309495)
+ORIGEM = (-23.957341, -46.341312)
+DESTINO = (-23.970372, -46.322068)
 
 
 def executar_rota(origem=ORIGEM, destino=DESTINO):
@@ -21,7 +21,11 @@ def executar_rota(origem=ORIGEM, destino=DESTINO):
     no_origem = ox.distance.nearest_nodes(grafo, X=origem[1], Y=origem[0])
     no_destino = ox.distance.nearest_nodes(grafo, X=destino[1], Y=destino[0])
 
-    rota, metros = buscar_rota_aco(grafo, no_origem, no_destino, seed=42)
+    quantidade_nos = grafo.number_of_nodes()
+    formigas = quantidade_nos
+    iteracoes = quantidade_nos * 6
+
+    rota, metros = buscar_rota_aco(grafo, no_origem, no_destino, formigas, iteracoes, seed=42)
     print(f"Distancia da rota: {metros:.0f} m")
 
     _, ax = ox.plot_graph(
