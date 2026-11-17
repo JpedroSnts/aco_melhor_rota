@@ -7,7 +7,8 @@ def buscar_rota_aco(grafo, origem, destino, formigas, iteracoes,
                     alfa=0.3, beta=0.5, evaporacao=0.5, q=None, seed=None,
                     atributo="length", gama=0.0,
                     tau_max=1.0, tau_min_fator=0.01, n_depositantes=1,
-                    estagnacao=None, comparar_dijkstra=False):
+                    estagnacao=None, comparar_dijkstra=False,
+                    restricoes_conversao=None):
     """Retorna (rota, custo) otimizando o atributo de aresta informado.
 
     atributo:          atributo da aresta usado como custo e heuristica local
@@ -23,9 +24,15 @@ def buscar_rota_aco(grafo, origem, destino, formigas, iteracoes,
     estagnacao:        se informado, reinicia os feromonios apos N iteracoes sem
                        melhora do melhor global (a melhor rota e mantida).
     comparar_dijkstra: se True, compara o resultado com o caminho otimo exato.
+    restricoes_conversao: conjunto de triplas (no_anterior, cruzamento, proximo_no)
+                          que as formigas nao podem percorrer.
     """
     if origem not in grafo or destino not in grafo:  # confere se os dois nos existem
         raise ValueError("Origem ou destino nao encontrado no grafo.")  # erro claro
+    if not grafo.is_directed():  # grafo sem direcao permitiria andar na contramao
+        raise ValueError(
+            "O ACO precisa de um grafo dirigido. Carregue a rede com network_type='drive'."
+        )  # recusa grafo que nao representa sentidos de circulacao
 
     def custo_aresta(u, v):  # custo da aresta u->v
         arestas = grafo.get_edge_data(u, v).values()  # arestas paralelas (MultiDiGraph)
@@ -57,6 +64,8 @@ def buscar_rota_aco(grafo, origem, destino, formigas, iteracoes,
     if origem == destino:  # caso trivial
         return [origem], 0.0  # rota de um no, custo zero
 
+    restricoes_conversao = set(restricoes_conversao or ())  # transicoes proibidas nos cruzamentos
+
     tau_min = tau_max * tau_min_fator  # piso do feromonio
     sorteio = random.Random(seed)  # gerador proprio, com seed opcional
     feromonios = {(u, v): tau_max for u, v in grafo.edges()}  # comeca todas as arestas no teto
@@ -78,9 +87,11 @@ def buscar_rota_aco(grafo, origem, destino, formigas, iteracoes,
             while rota[-1] != destino and len(rota) < len(grafo):  # anda ate o destino ou esgotar nos
                 atual = rota[-1]  # no atual
                 opcoes = []  # candidatos (no, peso)
-                for proxima in grafo.successors(atual):  # vizinhos alcancaveis
+                for proxima in grafo.successors(atual):  # somente arestas de saida: respeita mao unica
                     if proxima in visitadas:  # nao revisita nos
                         continue
+                    if len(rota) > 1 and (rota[-2], atual, proxima) in restricoes_conversao:
+                        continue  # proibe a conversao entre estas ruas
                     comprimento = custo_aresta(atual, proxima)  # custo ate o vizinho
                     if not math.isfinite(comprimento) or comprimento < 0:  # ignora custo invalido
                         continue

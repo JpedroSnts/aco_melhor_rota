@@ -2,22 +2,25 @@ import osmnx as ox
 import matplotlib.pyplot as plt
 
 from aco1 import buscar_rota_aco
+from restricoes import buscar_restricoes_conversao
 
 
 BAIRROS = [
     "Gonzaga, Santos, Sao Paulo, Brazil",
     "Encruzilhada, Santos, Sao Paulo, Brazil",
     "Campo Grande, Santos, Sao Paulo, Brazil",
-    "Boqueirão, Santos, Sao Paulo, Brazil"
+    "Boqueirão, Santos, Sao Paulo, Brazil",
 ]
 
 # Coordenadas em formato (latitude, longitude).
-ORIGEM = (-23.957341, -46.341312)
-DESTINO = (-23.970372, -46.322068)
+ORIGEM = (-23.958955, -46.327699)
+DESTINO = (-23.963514, -46.321541)
 
 
 def executar_rota(origem=ORIGEM, destino=DESTINO):
     grafo = ox.graph_from_place(BAIRROS, network_type="drive")
+    restricoes = buscar_restricoes_conversao(grafo)
+    print(f"Restricoes de conversao carregadas: {len(restricoes)}")
     no_origem = ox.distance.nearest_nodes(grafo, X=origem[1], Y=origem[0])
     no_destino = ox.distance.nearest_nodes(grafo, X=destino[1], Y=destino[0])
 
@@ -25,7 +28,15 @@ def executar_rota(origem=ORIGEM, destino=DESTINO):
     formigas = quantidade_nos
     iteracoes = quantidade_nos * 6
 
-    rota, metros = buscar_rota_aco(grafo, no_origem, no_destino, formigas, iteracoes, seed=42)
+    rota, metros = buscar_rota_aco(
+        grafo,
+        no_origem,
+        no_destino,
+        formigas,
+        iteracoes,
+        seed=42,
+        restricoes_conversao=restricoes,
+    )
     print(f"Distancia da rota: {metros:.0f} m")
 
     _, ax = ox.plot_graph(
