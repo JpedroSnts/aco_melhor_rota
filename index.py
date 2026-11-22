@@ -6,15 +6,12 @@ from restricoes import buscar_restricoes_conversao
 
 
 BAIRROS = [
-    "Gonzaga, Santos, Sao Paulo, Brazil",
-    "Encruzilhada, Santos, Sao Paulo, Brazil",
-    "Campo Grande, Santos, Sao Paulo, Brazil",
-    "Boqueirão, Santos, Sao Paulo, Brazil",
+  "Santos, Sao Paulo, Brazil"
 ]
 
 # Coordenadas em formato (latitude, longitude).
-ORIGEM = (-23.958955, -46.327699)
-DESTINO = (-23.963514, -46.321541)
+ORIGEM = (-23.961570, -46.335135)
+DESTINO = (-23.985052, -46.298377)
 
 
 def executar_rota(origem=ORIGEM, destino=DESTINO):
