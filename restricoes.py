@@ -1,11 +1,10 @@
-"""Leitura de restricoes de conversao do OpenStreetMap (Overpass)."""
+"""Leitura local das restricoes de conversao do OpenStreetMap."""
 
 import json
-from urllib.parse import urlencode
-from urllib.request import Request, urlopen
+from pathlib import Path
 
 
-OVERPASS_URL = "https://overpass-api.de/api/interpreter"
+ARQUIVO_RESTRICOES = Path(__file__).with_name("restricoes_osm.json")
 
 
 def _ids_osm(valor):
@@ -15,36 +14,17 @@ def _ids_osm(valor):
     return {str(valor)}
 
 
-def buscar_restricoes_conversao(grafo):
+def buscar_restricoes_conversao(grafo, arquivo=ARQUIVO_RESTRICOES):
     """Retorna conversoes proibidas como triplas (no_anterior, via, proximo).
 
-    Busca relacoes OSM `type=restriction` dentro dos limites do grafo. Sao
-    consideradas restricoes permanentes com via em um unico no. Restricoes
-    condicionais e relacoes com via em uma rua inteira sao ignoradas.
+    Le relacoes OSM do arquivo local. Sao consideradas restricoes permanentes
+    com via em um unico no; restricoes condicionais e vias compostas sao ignoradas.
     """
-    latitudes = [float(dados["y"]) for _, dados in grafo.nodes(data=True)]
-    longitudes = [float(dados["x"]) for _, dados in grafo.nodes(data=True)]
-    sul, norte = min(latitudes), max(latitudes)
-    oeste, leste = min(longitudes), max(longitudes)
-
-    consulta = (
-        "[out:json][timeout:90];"
-        f'relation["type"="restriction"]({sul},{oeste},{norte},{leste});'
-        "out body;"
-    )
-    requisicao = Request(
-        OVERPASS_URL,
-        data=urlencode({"data": consulta}).encode("utf-8"),
-        headers={"User-Agent": "otimizacao-rota-aco/1.0"},
-    )
     try:
-        with urlopen(requisicao, timeout=120) as resposta:
-            dados_osm = json.loads(resposta.read().decode("utf-8"))
-    except Exception as erro:
-        raise RuntimeError(
-            "Nao foi possivel carregar as restricoes de conversao do OpenStreetMap. "
-            "A busca foi interrompida para nao ignorar conversoes proibidas."
-        ) from erro
+        with open(arquivo, encoding="utf-8") as entrada:
+            dados_osm = json.load(entrada)
+    except OSError as erro:
+        raise RuntimeError(f"Nao foi possivel ler o arquivo de restricoes: {arquivo}") from erro
 
     # Mapeia os OSM way IDs para nos de entrada e saida no grafo dirigido.
     entradas = {}

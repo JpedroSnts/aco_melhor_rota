@@ -10,9 +10,19 @@ BAIRROS = [
 ]
 
 # Coordenadas em formato (latitude, longitude).
-ORIGEM = (-23.961570, -46.335135)
-DESTINO = (-23.985052, -46.298377)
 
+ROTAS_TESTE = [
+    {
+        "origem": (-23.961570, -46.335135), 
+        "destino": (-23.985052, -46.298377),
+        "formigas": 24258,
+        "iteracoes": 7541
+    }
+]
+
+IDX_ROTA = 0
+ORIGEM = ROTAS_TESTE[IDX_ROTA]["origem"]
+DESTINO = ROTAS_TESTE[IDX_ROTA]["destino"]
 
 def executar_rota(origem=ORIGEM, destino=DESTINO):
     grafo = ox.graph_from_place(BAIRROS, network_type="drive")
@@ -21,9 +31,9 @@ def executar_rota(origem=ORIGEM, destino=DESTINO):
     no_origem = ox.distance.nearest_nodes(grafo, X=origem[1], Y=origem[0])
     no_destino = ox.distance.nearest_nodes(grafo, X=destino[1], Y=destino[0])
 
-    quantidade_nos = grafo.number_of_nodes()
-    formigas = quantidade_nos
-    iteracoes = quantidade_nos * 6
+    #quantidade_nos = grafo.number_of_nodes()
+    formigas = ROTAS_TESTE[IDX_ROTA]["formigas"]
+    iteracoes = ROTAS_TESTE[IDX_ROTA]["iteracoes"]
 
     rota, metros = buscar_rota_aco(
         grafo,
