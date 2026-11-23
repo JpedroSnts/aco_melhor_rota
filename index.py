@@ -13,14 +13,26 @@ BAIRROS = [
 
 ROTAS_TESTE = [
     {
+        "origem": (-23.963679, -46.321569), 
+        "destino": (-23.959459, -46.324828),
+        "formigas": 4043,
+        "iteracoes": 10
+    },
+    {
         "origem": (-23.961570, -46.335135), 
         "destino": (-23.985052, -46.298377),
-        "formigas": 24258,
-        "iteracoes": 7541
+        "formigas": 4043,
+        "iteracoes": 7550
+    },
+    {
+        "origem": (-23.988425, -46.296914), 
+        "destino": (-23.932791, -46.331549),
+        "formigas": 4043,
+        "iteracoes": 25
     }
 ]
 
-IDX_ROTA = 0
+IDX_ROTA = 1
 ORIGEM = ROTAS_TESTE[IDX_ROTA]["origem"]
 DESTINO = ROTAS_TESTE[IDX_ROTA]["destino"]
 
